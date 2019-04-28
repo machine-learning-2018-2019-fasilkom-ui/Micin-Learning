@@ -1,13 +1,14 @@
 #!/usr/bin/env python 
 # encoding=utf-8
 
-from random import uniform, shuffle
-from cStringIO import StringIO
+from random import uniform, shuffle, choice, randint
+import string
+from io import BytesIO
 from PIL import ImageFont, Image, ImageDraw
 import numpy, pylab
 from mpl_toolkits.mplot3d import Axes3D
 
-fontPath = '/Library/Fonts/Arial.ttf'
+fontPath = './lib/fonts/Lato-Regular.ttf'
 
 def makeImage(text, width=400, height=200, angle=None):
     '''Generate a 3d CAPTCHA image.
@@ -41,24 +42,19 @@ def makeImage(text, width=400, height=200, angle=None):
     ax.set_axis_off()
     ax.view_init(elev=60, azim=-90 + angle)
 
-    fim = StringIO()
+    fim = BytesIO()
     fig.savefig(fim, format='png')
     binData = fim.getvalue()
     fim.close()
     return binData
 
 def randStr(length=7):
-    '''Generate a random string composed of lowercase and digital.
-    Indistinguishable characters have been removed.
-    '''
-    characters = list('bcdghijkmnpqrtuvwxyz23456789')
-    shuffle(characters)
-    return ''.join(characters[:length])
-
+    return ''.join([choice(string.ascii_letters + string.digits) for n in  range(randint(5, 10))])
 
 if __name__ == '__main__':
     for i in range(20):
-        img = makeImage(randStr(), width=512)
-        with open('%d.png' % i, 'wb') as f:
-            f.write(img)
-        print i
+        captcha_string = randStr()
+        img = makeImage(captcha_string, width=512)
+        with open("./generated_dataset/%d.png" %i, 'wb') as image_file:
+            image_file.write(img)
+        print(i)
