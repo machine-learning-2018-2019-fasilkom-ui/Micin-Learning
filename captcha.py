@@ -46,15 +46,21 @@ def makeImage(text, width=400, height=200, angle=None):
     fig.savefig(fim, format='png')
     binData = fim.getvalue()
     fim.close()
+    pylab.close(fig)
     return binData
 
 def randStr(length=7):
-    return ''.join([choice(string.ascii_letters + string.digits) for n in  range(randint(5, 10))])
+    return ''.join([choice(string.ascii_letters + string.digits) for n in  range(randint(5, 11))])
 
 if __name__ == '__main__':
-    for i in range(20):
+    captcha_string_set = set()
+    i = 0
+    while i < 100000:
         captcha_string = randStr()
-        img = makeImage(captcha_string, width=512)
-        with open("./generated_dataset/%d.png" %i, 'wb') as image_file:
-            image_file.write(img)
-        print(i)
+        if captcha_string not in captcha_string_set:
+            captcha_image = makeImage(captcha_string, width=1024, height=400)
+            with open("./generated_dataset/%s.png" %captcha_string, 'wb') as image_file:
+                image_file.write(captcha_image)
+            print(i)
+            captcha_string_set.add(captcha_string)
+            i+=1
