@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[125]:
+# In[6]:
 
 
 import os 
@@ -16,12 +16,12 @@ import re
 
 # # Read Data
 
-# In[131]:
+# In[16]:
 
 
-img_dir = "Documents\kuliahsss\samp" # Enter Directory of all images 
+img_dir = "D:\Backup-Folder\ks\Micin-Learning-master\CaptchaData" # Enter Directory of all images 
 img_Label = pd.read_csv("trainLabels.csv")
-img_Label = list(img_Label.loc[:149]['Labels'])
+img_Label = list(img_Label['Labels'])
 data_path = os.path.join(img_dir,'*.JPG')
 files = glob.glob(data_path)
 data = []
@@ -37,53 +37,25 @@ for f1 in sorted(files, key=numericalSort):
     data.append(img)
 
 
-# In[90]:
-
-
-img_dir = "Documents\kuliahsss\mechine\captcha4word" # Enter Directory of all images 
-data_path = os.path.join(img_dir,'*.PNG')
-files = glob.glob(data_path)
-
-for f1 in sorted(files, key=numericalSort):
-    img = cv.imread(f1)
-    data.append(img)
-
-
-# In[91]:
-
-
-label2 = []
-for file in files :
-    label2.append(file.split("\\")[4].split(".")[0])
-
-
-# In[92]:
-
-
-img_label = list(img_Label.loc[:149]['Labels'])
-for label in label2 :
-    img_label.append(label)
-
-
 # In[93]:
 
 
 img_Label = img_label
 
 
-# In[132]:
+# In[98]:
 
 
 len(data), len(img_Label)
 
 
-# In[133]:
+# In[19]:
 
 
 Listimg = np.array(data)
 
 
-# In[134]:
+# In[20]:
 
 
 def showImage(row,col,Listimg):
@@ -93,23 +65,25 @@ def showImage(row,col,Listimg):
     for i in range(columns*rows):
         img = Listimg[i]
         fig.add_subplot(rows, columns, i+1)
+        plt.xticks([])
+        plt.yticks([])
         plt.imshow(img)
     plt.show()
 
 
-# In[135]:
+# In[21]:
 
 
 showImage(5,4,Listimg)
 
 
-# In[136]:
+# In[37]:
 
 
 gray = grayScale(Listimg)
 
 
-# In[163]:
+# In[38]:
 
 
 g = gray[104].copy()
@@ -117,11 +91,12 @@ b = BW(gray[104])
 contours = find_contours(b)
 
 
-# In[165]:
+# In[44]:
 
 
+splitImg = []
 for c in contours:
-    x,y,w,h = cv.boundingRect(c)   
+    x,y,w,h = cv.boundingRect(c) 
     if w/h > 1 :
         half = int(w//2)
         if half / h > 1: 
@@ -173,15 +148,9 @@ for c in contours:
 plt.imshow(g,cmap='gray')
 
 
-# In[ ]:
-
-
-
-
-
 # # Data Preprocessing 
 
-# In[166]:
+# In[31]:
 
 
 def grayScale(Listimg):
@@ -191,7 +160,7 @@ def grayScale(Listimg):
     return np.array(grays)
 
 
-# In[167]:
+# In[32]:
 
 
 def BW(grayScaleImg):
@@ -201,7 +170,7 @@ def BW(grayScaleImg):
     return BW
 
 
-# In[168]:
+# In[33]:
 
 
 def find_contours(BW):
@@ -210,7 +179,7 @@ def find_contours(BW):
     return contours
 
 
-# In[169]:
+# In[40]:
 
 
 def splitImage(contours):
@@ -234,15 +203,11 @@ def splitImage(contours):
     return splitImg
 
 
-# In[174]:
+# In[41]:
 
 
 def savePath(path,file):
     return os.path.join(path,file)
-
-# def makeFolder(path):
-#     if not os.path.exists(path):
-#         os.makedirs(path)
 
 def LetterImage(grayImg,splitImg,img_Label,counts):
     splitImg = sorted(splitImg, key=lambda x: x[0])
@@ -265,7 +230,7 @@ def LetterImage(grayImg,splitImg,img_Label,counts):
         
 
 
-# In[175]:
+# In[42]:
 
 
 def createNewSplit(Listimg,img_Label):
@@ -280,7 +245,7 @@ def createNewSplit(Listimg,img_Label):
         LetterImage(gray[i],splitImg,img_Label[i],counts)
 
 
-# In[176]:
+# In[45]:
 
 
 gray = grayScale(Listimg)
@@ -292,10 +257,10 @@ gray = grayScale(Listimg)
 createNewSplit(Listimg,img_Label)
 
 
-# In[178]:
+# In[99]:
 
 
-img_dir = "Documents\kuliahsss\TrainCapt3"
+img_dir = "D:\Backup-Folder\ks\Micin-Learning-master\letterSplit"
 subdirs = [x[0] for x in os.walk(img_dir)]  
 class_num = -1
 y = []
@@ -312,48 +277,53 @@ for subdir in subdirs :
             y.append(class_num)
         except Exception as e:
             pass
-     
 
 
-# In[182]:
+# In[100]:
 
 
 trainData = np.array(trainData)
 
 
-# In[185]:
+# In[101]:
 
 
 trainData.shape
 
 
-# In[186]:
+# In[102]:
 
 
-trainData  = trainData.reshape(trainData.shape[0],1,50,50)
+trainData  = trainData.reshape(trainData.shape[0],50,50,1)
 
 
-# In[188]:
+# In[103]:
+
+
+trainData.shape[1:]
+
+
+# In[104]:
 
 
 classNum = len(set(y))
 
 
-# In[189]:
+# In[105]:
 
 
 label = np.copy(y)
 
 
-# In[190]:
+# In[106]:
 
 
 label.shape
 
 
-# # One hot encoding the Data
+# # One hot encoding the Label
 
-# In[191]:
+# In[107]:
 
 
 label = np.int64(label)
@@ -361,7 +331,7 @@ nvalues = np.max(label)
 label = np.eye(nvalues)[label-1]
 
 
-# In[192]:
+# In[108]:
 
 
 label = np.float64(label)
@@ -370,18 +340,20 @@ label
 
 # # Create Models
 
-# In[196]:
+# In[129]:
 
 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Activation, Dense, Dropout, Activation, Flatten, Conv2D, MaxPooling2D
+from tensorflow.python.keras.callbacks import TensorBoard
+from time import time
 
 
-# In[199]:
+# In[132]:
 
 
-def cnn_model(X,y):
-    classNum = yTrain.shape[1]
+def cnn_model(X,y,epoch, board):
+    classNum = y.shape[1]
 
     model = Sequential()
 
@@ -409,18 +381,18 @@ def cnn_model(X,y):
                   optimizer = 'SGD',
                   metrics=['accuracy'])
     
-    model.fit(X,y,epochs = 20,batch_size = 16,validation_split=0.2)
+    model.fit(X,y,epochs = epoch,batch_size = 16,validation_split=0.2, callbacks = [board])
     return model 
 
 
-# In[213]:
+# In[137]:
 
 
-classNum = yTrain.shape[1]
+classNum = label.shape[1]
 
 model = Sequential()
 
-conv2d = Conv2D(64,(2,2),strides=(1,1),input_shape = xTrain.shape[1:],padding='valid')
+conv2d = Conv2D(64,(2,2),strides=(1,1),input_shape = trainData.shape[1:],padding='valid')
 
 model.add(conv2d)
 model.add(MaxPooling2D(pool_size=(2,2)))
@@ -447,13 +419,7 @@ model.compile(loss = 'binary_crossentropy',
 
 # # Train Model
 
-# In[285]:
-
-
-trainData.shape
-
-
-# In[286]:
+# In[112]:
 
 
 s = list(zip(trainData, label))
@@ -461,46 +427,58 @@ np.random.shuffle(s)
 xTrain, yTrain = zip(*s)
 xTrain = np.array(xTrain)
 yTrain = np.array(yTrain)
-xTrain = xTrain.reshape(xTrain.shape[0],50,50,1)
 
 
-# In[287]:
+# In[113]:
 
 
 xTrain.shape, yTrain.shape
 
 
-# In[220]:
+# In[140]:
 
 
-model = cnn_model(xTrain,yTrain)
+name = "wordcls-{}".format(int(time()))
+tensorboard = TensorBoard(log_dir="logs{}".format(name))
 
 
-# In[221]:
+# In[115]:
 
 
-model.save_weights("modelweights1.h5")
+model = cnn_model(xTrain,yTrain,10,tensorboard)
 
 
-# In[214]:
+# In[116]:
 
 
-model2 = model.fit(xTrain,yTrain,epochs = 30,batch_size = 16,validation_split=0.2)
+model2 = cnn_model(xTrain,yTrain,20,tensorboard)
 
 
-# In[ ]:
+# In[117]:
 
 
-model.save_weights("modelweight1.h5")
+model3 = cnn_model(xTrain,yTrain,30,tensorboard)
+
+
+# In[139]:
+
+
+model4 = cnn_model(xTrain,yTrain,40,tensorboard)
+
+
+# In[148]:
+
+
+model4.save_weights("modelweight4.h5")
 
 
 # # Open Test Data
 
-# In[222]:
+# In[159]:
 
 
 # Test directory with label
-img_dir = "Documents\\kuliahsss\\samptest" 
+img_dir = "D:\\Backup-Folder\\ks\\Micin-Learning-master\\testCaptchawithLabel" 
 data_path = os.path.join(img_dir,'*.JPG')
 files = glob.glob(data_path)
 data = []
@@ -510,45 +488,39 @@ for f1 in sorted(files, key=numericalSort):
     data.append(img)
 
 
-# In[199]:
+# In[161]:
 
 
 # Test directory without label
-img_dir = "Documents\\kuliahsss\\test" 
+img_dir = "D:\\Backup-Folder\\ks\\Micin-Learning-master\\testcaptchaNoLabel" 
 data_path = os.path.join(img_dir,'*.JPG')
 files = glob.glob(data_path)
-data = []
+datanoLabel = []
 
 for f1 in sorted(files, key=numericalSort):
     img = cv.imread(f1)
-    data.append(img)
+    datanoLabel.append(img)
 
 
 # # Preprocess Test Data
 
-# In[236]:
+# In[163]:
 
 
-classPath = "Documents\\kuliahsss\\TrainCapt3"
+classPath = "D:\\Backup-Folder\\ks\\Micin-Learning-master\\letterSplit"
 classList = os.listdir(classPath)
 
 
-# In[238]:
+# In[164]:
 
 
 Listimg = np.array(data)
 grayimg = grayScale(Listimg)
 
 
-# In[352]:
-
-
-len(data)
-
-
 # # Load Model
 
-# In[239]:
+# In[166]:
 
 
 def model():
@@ -582,21 +554,21 @@ def model():
     return model
 
 
-# In[240]:
+# In[167]:
 
 
 modelTest = model()
 
 
-# In[243]:
+# In[169]:
 
 
-modelTest.load_weights("modelweights1.h5")
+modelTest.load_weights("modelweight4.h5")
 
 
 # # Predict Test Data
 
-# In[332]:
+# In[182]:
 
 
 gray = grayimg
@@ -638,20 +610,20 @@ for i in range(grayimg.shape[0]):
     ls.append(predict)
 
 
-# In[333]:
+# In[183]:
 
 
 labelTest = pd.read_csv("trainLabels.csv")
 labelTest = list(labelTest.loc[150:]['Labels'])
 
 
-# In[334]:
+# In[184]:
 
 
 print(labelTest)
 
 
-# In[335]:
+# In[185]:
 
 
 trueprd = 0
@@ -660,19 +632,19 @@ for i in range(len(labelTest)) :
         trueprd +=1
 
 
-# In[342]:
+# In[186]:
 
 
 wordList =  "".join(labelTest)
 
 
-# In[345]:
+# In[187]:
 
 
 wordListPred = "".join(ls)
 
 
-# In[346]:
+# In[188]:
 
 
 trueprdword = 0
@@ -681,87 +653,69 @@ for i in range(len(wordList)) :
         trueprdword +=1
 
 
-# In[347]:
+# In[189]:
 
 
 print("Word Accuracy : " + str(trueprdword / len(labelTest)))
 
 
-# In[348]:
+# In[190]:
 
 
 print("Accuracy : "+ str(trueprd / len(labelTest)))
 
 
-# In[350]:
+# In[191]:
 
 
 showImage(5,5,Listimg[:25])
 print(ls)
 
 
-# In[310]:
+# In[195]:
 
 
-g = gray[1].copy()
-b = BW(gray[1])
-contours = find_contours(b)
-for c in contours:
-    x,y,w,h = cv.boundingRect(c)   
-    if w/h > 1 :
-        half = int(w//2)
-        if half / h > 1: 
-            halff = int(half//2)
-            splitImg.append([x,y,halff,h])
-            splitImg.append([x+halff,y,halff,h])
-            splitImg.append([x+half,y,halff,h])
-            splitImg.append([x+half+halff,y,halff,h])
-            rect1 = np.array([[x+halff-1,y-1],
-                         [x+halff-1,y+h-1],
-                         [x+half-1,y+h-1],
-                         [x+half-1,y-1]])
-            rect2 = np.array([[x-1,y-1],
-                         [x-1,y+h-1],
-                         [x+halff-1,y+h-1],
-                         [x+halff-1,y-1]])
-            rect3 = np.array([[x+half+halff-1,y-1],
-                         [x+half+halff-1,y+h-1],
-                         [x+half+2*halff-1,y+h-1],
-                         [x+half+2*halff-1,y-1]])
-            rect4 = np.array([[x+half-1,y-1],
-                         [x+half-1,y+h-1],
-                         [x+half+halff-1,y+h-1],
-                         [x+half+halff-1,y-1]])
-            im = cv.drawContours(g,[rect1],0,1,0)
-            im = cv.drawContours(g,[rect2],0,1,0)
-            im = cv.drawContours(g,[rect3],0,1,0)
-            im = cv.drawContours(g,[rect4],0,1,0)    
-        else :     
-            splitImg.append([x,y,half,h])
-            splitImg.append([x+half,y,half,h])
-            rect1 = np.array([[x+half-1,y-1],
-                         [x+half-1,y+h-1],
-                         [x+w-1,y+h-1],
-                         [x+w-1,y-1]])
-            rect2 = np.array([[x-1,y-1],
-                         [x-1,y+h-1],
-                         [x+half-1,y+h-1],
-                         [x+half-1,y-1]])
-            im = cv.drawContours(g,[rect1],0,1,0)
-            im = cv.drawContours(g,[rect2],0,1,0)
-            print(h)
-    else :
-        splitImg.append([x,y,w,h])
-        rect1 = np.array([[x-1,y-1],
-                     [x-1,y+h-1],
-                     [x+w-1,y+h-1],
-                     [x+w-1,y-1]])
-        im = cv.drawContours(g,[rect1],0,1,0)
-plt.imshow(g,cmap='gray')
+def generate_captcha(gray):
+    i = np.random.randint(50)
+    plt.imshow(gray[i], cmap = 'gray')
 
 
-# In[ ]:
+# In[197]:
 
 
-
+def solve_captcha(gray, i, modelTest):
+    bw = BW(gray[i])
+    contours = find_contours(bw)
+    splitImg = splitImage(contours)
+    splitImg = sorted(splitImg, key=lambda x: x[0])
+    predict = ""
+    word = []
+    count = 0 
+    for boundary in splitImg:
+        try :
+            x,y,w,h = boundary
+            y1 = y-2
+            y2 = y+h+2
+            x1 = x-2
+            x2 = x+w+2
+            if y1 < 0 :
+                y1 = 0 
+            if x1 < 0 :
+                x1 = 0
+            if y2 > gray.shape[1] :
+                y2 = gray.shape[1]
+            if x2 > gray.shape[2] :
+                x2 = gray.shape[2]   
+            letter = gray[i][y1:y2, x1:x2]
+            letter = cv.resize(letter,(50,50))
+            letter = letter.reshape(50,50,1)
+            word.append(letter)  
+        except:
+            continue
+    word = np.array(word)
+    pred = modelTest.predict_classes(word)
+    for c in pred : 
+        predict += classList[c]
+    ls.append(predict)
+    return ls
 
